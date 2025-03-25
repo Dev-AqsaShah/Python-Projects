@@ -13,4 +13,14 @@
 # print(info)
 # is m hm list or tupls ko bhi likh sakt hn
 
+#nested dictionary
+# student = {
+#     "name" : "aqsa",
+#     "subject" : {
+#         "phy" : 97,
+#         "chem" : 98,
+#         "math" : 95
+#     }
+# }
+# print(student["subject"] ["chem"])
 
