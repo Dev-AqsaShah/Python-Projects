@@ -54,3 +54,51 @@
 # set.remove(el) removes the element 
 # set.clear() empties the set
 # set.pop() removes a random value
+
+# collection = set()
+# collection.add(1)
+# collection.add(2)
+# collection.add(2)
+# collection.add((1, 2, 4)) tupl add kr sakte hn
+# collection.([1,2,4]) list add nhi kr sakte error ayega
+# collection.remove(2)
+# collection.clear()
+# print(collection)
+# set k ander hashable values ati hn mtlb immutable
+
+# collection = {"hello", "aqsa", "fasih"}
+# print(collection.pop())
+# print(collection.pop())
+
+# set.union(set2) combines both set values & returns new
+# set.intersection(set2) combines common values and return new
+
+# set1 = {1, 2, 3}
+# set2 = {1, 2, 3}
+
+# print(set1.union(set2)) ans {1,2,3,4}
+# print(set1)
+
+
+# set1 = {1, 2, 3}
+# set2 = {2, 3, 4}
+
+# print(set1.intersection(set2)) ans {2,3,}
+# print(set1)
+
+# PRACTICE QUESTION 1
+# dictionary = {
+#     "cat" : "a small animal",
+#     "table" : ["a piece of furniture", "list of facts and figures"]
+
+# }
+
+# print(dictionary)
+
+# q2
+
+# subjects = {
+#     "python", "java", "c++", "python", "javascript", "java",
+#     "python", "java", "c++", "c"
+# }
+# print(len(subjects))
