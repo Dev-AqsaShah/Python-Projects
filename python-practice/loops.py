@@ -73,4 +73,8 @@ while i < len(num):
 #?  for loop 
 #? loops are used for sequential traversal. for traversal for traversing list string tuples 
 
-num = [1, ]
+q1 print th elements of the folloing list using a loop
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+search for a num x in this tupl using loop 
+[1, 4, 9, 16, 25,]
