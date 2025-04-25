@@ -79,19 +79,25 @@ while i < len(num):
 # search for a num x in this tupl using loop 
 # [1, 4, 9, 16, 25, 36, 49, ]
 
-nums = (1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 49)
-x = 49
+# nums = (1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 49)
+# x = 49
 
-idx = 0
-for el in nums:
-    if(el == x):
-        print("number found at idx", idx)
-    idx += 1
+# idx = 0
+# for el in nums:
+#     if(el == x):
+#         print("number found at idx", idx)
+#     idx += 1
     
     #! range()
     
-    for i in range(10):  #range(stop)
-        print(i)
+    # for i in range(10):  #range(stop)
+    #     print(i)
         
-    for i in range(2, 10): #range(start, stop)
-        print(i)
+    # for i in range(2, 10): #range(start, stop)
+    #     print(i)
+        
+    #! pass statement
+    #? pass is a null statement that does nothing it is used as a placeholder for future code.
+    # for i in range(5):
+    #     pass
+    # print("some useful work")
