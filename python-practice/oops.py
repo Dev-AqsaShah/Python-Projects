@@ -34,4 +34,11 @@
 # CLASS & INSTANCE ATTRIBUTES
 
 
-# METHODS
+class Person:
+    def __init__(mine, name, age, Rollno):
+        mine.name = name
+        mine.age = age
+        mine.Rollno = Rollno
+
+person1:Person = Person("Aqsa Shah", 20, 17)
+print(person1)
