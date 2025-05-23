@@ -34,11 +34,21 @@
 # CLASS & INSTANCE ATTRIBUTES
 
 
-class Person:
-    def __init__(mine, name, age, Rollno):
-        mine.name = name
-        mine.age = age
-        mine.Rollno = Rollno
+# class Person:
+#     def __init__(self, name, age, Rollno):
+#         self.name = name
+#         self.age = age
+#         self.Rollno = Rollno
 
-person1:Person = Person("Aqsa Shah", 20, 17)
-print(person1)
+#     def get_info(self):
+#         return f'Name: {self.name}, age: {self.age}, Rollno: {self.Rollno}'
+
+#     def change_name(self, new_name):
+#        self.name = new_name
+#        return f'Name changed to {self.name}'
+
+# person1:Person = Person("Aqsa Shah", 20, 17)
+# print(person1)
+
+
+
