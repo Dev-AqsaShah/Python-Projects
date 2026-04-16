@@ -1,0 +1,6 @@
+yashfa,70
+aqsa,80
+sara,99
+saba,90
+ansa,60
+maria,40

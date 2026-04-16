@@ -16,7 +16,7 @@ print("=== Welcome to Quiz Game ===\n")
 
 for i, q in enumerate(questions, 1):
     print(f"Q{i}: {q['question']}")
-    user_answer = input("Aapka jawab: ").strip().lower()
+    user_answer = input("your answer: ").strip().lower()
     if user_answer == q["answer"].lower():
         print("Sahi hai!\n")
         score += 1
