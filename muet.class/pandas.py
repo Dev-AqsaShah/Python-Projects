@@ -24,6 +24,8 @@ df = pd.read_csv('Titanic-Dataset.csv')
 
 # true means vlue is missing
 
+# df.duplicated()
+
 
 
 #df.isnull()
