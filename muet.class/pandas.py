@@ -16,7 +16,7 @@ df = pd.read_csv('Titanic-Dataset.csv')
 
 # print(df['col'].unique())  konsi unique hn values
 
-# print(df['Cabin'].nunique()) kitni hnunique values
+print(df['Cabin'].nunique()) #kitni hnunique values
 
 # missing data 
 
