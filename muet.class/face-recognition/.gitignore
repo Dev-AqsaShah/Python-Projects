@@ -1,0 +1,4 @@
+dataset/
+trainer.yml
+labels.txt
+users.json

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Face Recognition System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Space Grotesk', sans-serif; }
+  .aurora-bg {
+    background: radial-gradient(circle at 15% 20%, rgba(124,58,237,0.35), transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(236,72,153,0.30), transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(34,211,238,0.25), transparent 45%),
+                #05050a;
+    background-size: 200% 200%;
+    animation: drift 18s ease-in-out infinite;
+  }
+  @keyframes drift { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
+  .glass { background: rgba(17, 17, 27, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .tab-btn.active { background: linear-gradient(to right, #d946ef, #22d3ee); color: white; }
+  #user-list::-webkit-scrollbar { width: 6px; }
+  #user-list::-webkit-scrollbar-thumb { background: #6d28d9; border-radius: 10px; }
+</style>
+</head>
+<body class="aurora-bg min-h-screen flex items-center justify-center p-4 text-gray-100">
+
+  <div class="w-full max-w-xl glass rounded-3xl shadow-2xl overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 px-6 py-4 border-b border-white/10 bg-white/[0.03]">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-fuchsia-500 via-purple-500 to-cyan-400 flex items-center justify-center text-xl shadow-lg">🪪</div>
+      <div>
+        <h1 class="font-semibold text-lg leading-tight bg-gradient-to-r from-fuchsia-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">Face Recognition System</h1>
+        <p class="text-xs text-gray-400">Register, scan &amp; manage users</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 p-4">
+      <button id="tab-register" class="tab-btn active flex-1 py-2 rounded-full text-sm font-medium bg-white/[0.06] transition">Register</button>
+      <button id="tab-scan" class="tab-btn flex-1 py-2 rounded-full text-sm font-medium bg-white/[0.06] transition">Scan</button>
+      <button id="tab-users" class="tab-btn flex-1 py-2 rounded-full text-sm font-medium bg-white/[0.06] transition">Users</button>
+    </div>
+
+    <!-- Register Section -->
+    <div id="section-register" class="px-6 pb-6 space-y-4">
+      <input id="reg-name" type="text" placeholder="Full Name" class="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-500/60" />
+      <input id="reg-roll" type="text" placeholder="Roll Number" class="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-500/60" />
+      <input id="reg-dept" type="text" placeholder="Department" class="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-500/60" />
+      <input id="reg-trade" type="text" placeholder="Trade (e.g. AI, Web Dev)" class="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-500/60" />
+
+      <div class="relative rounded-2xl overflow-hidden bg-black/40 aspect-video flex items-center justify-center">
+        <video id="reg-video" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
+        <p id="reg-placeholder" class="text-gray-500 text-sm">Camera preview will appear here</p>
+      </div>
+
+      <button id="reg-start" class="w-full py-3 rounded-full bg-gradient-to-br from-fuchsia-500 to-cyan-400 text-white font-medium shadow-lg hover:opacity-90 transition">Start Capture (30 photos)</button>
+      <p id="reg-status" class="text-center text-sm text-gray-400"></p>
+    </div>
+
+    <!-- Scan Section -->
+    <div id="section-scan" class="px-6 pb-6 space-y-4 hidden">
+      <div class="relative rounded-2xl overflow-hidden bg-black/40 aspect-video flex items-center justify-center">
+        <video id="scan-video" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
+        <p id="scan-placeholder" class="text-gray-500 text-sm">Camera preview will appear here</p>
+      </div>
+
+      <button id="scan-start" class="w-full py-3 rounded-full bg-gradient-to-br from-fuchsia-500 to-cyan-400 text-white font-medium shadow-lg hover:opacity-90 transition">Start Scan</button>
+      <p id="scan-status" class="text-center text-sm text-gray-400"></p>
+
+      <div id="scan-result" class="hidden rounded-2xl p-4 border text-sm"></div>
+    </div>
+
+    <!-- Users Section -->
+    <div id="section-users" class="px-6 pb-6 space-y-3 hidden">
+      <div id="user-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
+      <p id="user-empty" class="text-center text-sm text-gray-500 hidden">No users registered yet.</p>
+    </div>
+  </div>
+
+<canvas id="canvas" class="hidden"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  function captureFrame(video) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.8);
+  }
+
+  function stopStream(video) {
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
+    }
+    video.classList.add('hidden');
+  }
+
+  // ---------- Tabs ----------
+  const tabs = {
+    register: { btn: document.getElementById('tab-register'), section: document.getElementById('section-register') },
+    scan: { btn: document.getElementById('tab-scan'), section: document.getElementById('section-scan') },
+    users: { btn: document.getElementById('tab-users'), section: document.getElementById('section-users') },
+  };
+
+  function showTab(activeKey) {
+    for (const key in tabs) {
+      const isActive = key === activeKey;
+      tabs[key].btn.classList.toggle('active', isActive);
+      tabs[key].section.classList.toggle('hidden', !isActive);
+    }
+    stopStream(document.getElementById('reg-video'));
+    stopStream(document.getElementById('scan-video'));
+    if (activeKey === 'users') loadUsers();
+  }
+
+  tabs.register.btn.addEventListener('click', () => showTab('register'));
+  tabs.scan.btn.addEventListener('click', () => showTab('scan'));
+  tabs.users.btn.addEventListener('click', () => showTab('users'));
+
+  // ---------- Register ----------
+  const regVideo = document.getElementById('reg-video');
+  const regPlaceholder = document.getElementById('reg-placeholder');
+  const regStart = document.getElementById('reg-start');
+  const regStatus = document.getElementById('reg-status');
+
+  regStart.addEventListener('click', async () => {
+    const name = document.getElementById('reg-name').value.trim();
+    if (!name) { regStatus.textContent = 'Please enter the name first.'; return; }
+
+    regStart.disabled = true;
+    regStatus.textContent = 'Checking...';
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    regVideo.srcObject = stream;
+    regVideo.classList.remove('hidden');
+    regPlaceholder.classList.add('hidden');
+
+    // Camera ko thoda settle hone ka time dein
+    await new Promise(r => setTimeout(r, 800));
+
+    // Pehle check karein: yeh naam ya chehra already registered to nahi
+    const checkImage = captureFrame(regVideo);
+    const checkRes = await fetch('/api/register/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, image: checkImage })
+    });
+    const checkData = await checkRes.json();
+
+    if (checkData.duplicate) {
+      stopStream(regVideo);
+      regPlaceholder.classList.remove('hidden');
+      regStatus.textContent = `⚠️ ${checkData.message}`;
+      regStart.disabled = false;
+      return;
+    }
+
+    let captured = 0;
+    const target = 30;
+
+    const interval = setInterval(async () => {
+      const image = captureFrame(regVideo);
+      const res = await fetch('/api/register/capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, image })
+      });
+      const data = await res.json();
+      if (data.saved) captured++;
+      regStatus.textContent = `Captured ${captured}/${target} photos...`;
+
+      if (captured >= target) {
+        clearInterval(interval);
+        stopStream(regVideo);
+        regPlaceholder.classList.remove('hidden');
+
+        regStatus.textContent = 'Training model...';
+        await fetch('/api/register/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            roll_no: document.getElementById('reg-roll').value.trim(),
+            department: document.getElementById('reg-dept').value.trim(),
+            trade: document.getElementById('reg-trade').value.trim(),
+          })
+        });
+        regStatus.textContent = `✅ ${name} registered successfully!`;
+        regStart.disabled = false;
+        document.getElementById('reg-name').value = '';
+        document.getElementById('reg-roll').value = '';
+        document.getElementById('reg-dept').value = '';
+        document.getElementById('reg-trade').value = '';
+      }
+    }, 300);
+  });
+
+  // ---------- Scan ----------
+  const scanVideo = document.getElementById('scan-video');
+  const scanPlaceholder = document.getElementById('scan-placeholder');
+  const scanStart = document.getElementById('scan-start');
+  const scanStatus = document.getElementById('scan-status');
+  const scanResult = document.getElementById('scan-result');
+
+  scanStart.addEventListener('click', async () => {
+    scanStart.disabled = true;
+    scanResult.classList.add('hidden');
+    scanStatus.textContent = 'Starting camera...';
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    scanVideo.srcObject = stream;
+    scanVideo.classList.remove('hidden');
+    scanPlaceholder.classList.add('hidden');
+
+    let attempts = 0;
+    const maxAttempts = 12;
+
+    const tryRecognize = async () => {
+      attempts++;
+      scanStatus.textContent = `Scanning... (${attempts}/${maxAttempts})`;
+      const image = captureFrame(scanVideo);
+      const res = await fetch('/api/recognize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image })
+      });
+      const data = await res.json();
+
+      if (data.status === 'registered' || data.status === 'unregistered' || data.status === 'no_users' || attempts >= maxAttempts) {
+        stopStream(scanVideo);
+        scanPlaceholder.classList.remove('hidden');
+        scanStatus.textContent = '';
+        showResult(data);
+        scanStart.disabled = false;
+        return;
+      }
+
+      setTimeout(tryRecognize, 700);
+    };
+
+    setTimeout(tryRecognize, 1000);
+  });
+
+  function showResult(data) {
+    scanResult.classList.remove('hidden');
+
+    if (data.status === 'registered') {
+      scanResult.className = 'rounded-2xl p-4 border text-sm bg-emerald-500/10 border-emerald-500/30';
+      scanResult.innerHTML = `
+        <p class="text-emerald-400 font-semibold mb-2">✅ Welcome, ${data.details.name}</p>
+        <p>Roll Number: ${data.details.roll_no || '-'}</p>
+        <p>Department: ${data.details.department || '-'}</p>
+        <p>Trade: ${data.details.trade || '-'}</p>`;
+    } else if (data.status === 'unregistered') {
+      scanResult.className = 'rounded-2xl p-4 border text-sm bg-rose-500/10 border-rose-500/30';
+      scanResult.innerHTML = `<p class="text-rose-400 font-semibold">❌ This face is not registered in our system.</p>`;
+    } else if (data.status === 'no_users') {
+      scanResult.className = 'rounded-2xl p-4 border text-sm bg-yellow-500/10 border-yellow-500/30';
+      scanResult.innerHTML = `<p class="text-yellow-400 font-semibold">⚠️ No users registered yet.</p>`;
+    } else {
+      scanResult.className = 'rounded-2xl p-4 border text-sm bg-yellow-500/10 border-yellow-500/30';
+      scanResult.innerHTML = `<p class="text-yellow-400 font-semibold">⚠️ No face detected, please try again.</p>`;
+    }
+  }
+
+  // ---------- Users ----------
+  const userList = document.getElementById('user-list');
+  const userEmpty = document.getElementById('user-empty');
+
+  async function loadUsers() {
+    const res = await fetch('/api/users');
+    const users = await res.json();
+    const keys = Object.keys(users);
+
+    userList.innerHTML = '';
+    userEmpty.classList.toggle('hidden', keys.length > 0);
+
+    keys.forEach(key => {
+      const u = users[key];
+      const card = document.createElement('div');
+      card.className = 'rounded-2xl p-4 bg-white/[0.06] border border-white/10 flex items-center justify-between gap-3';
+      card.innerHTML = `
+        <div>
+          <p class="font-semibold text-gray-100">${u.name}</p>
+          <p class="text-xs text-gray-400">Roll: ${u.roll_no || '-'} · Dept: ${u.department || '-'} · Trade: ${u.trade || '-'}</p>
+        </div>
+        <button class="delete-btn px-3 py-1.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs hover:bg-rose-500/25 transition">Delete</button>`;
+
+      card.querySelector('.delete-btn').addEventListener('click', async () => {
+        if (!confirm(`Delete ${u.name}?`)) return;
+        await fetch(`/api/users/${encodeURIComponent(key)}`, { method: 'DELETE' });
+        loadUsers();
+      });
+
+      userList.appendChild(card);
+    });
+  }
+</script>
+</body>
+</html>
